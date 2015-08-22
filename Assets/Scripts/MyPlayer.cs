@@ -14,6 +14,8 @@ public class MyPlayer : AliveEntity {
 
 	public Transform groundCheck;
 	public LayerMask whatIsGround;
+	
+	public Transform playerBlade;
 #endregion
 
 #region Private Members
@@ -27,18 +29,21 @@ public class MyPlayer : AliveEntity {
 
 	// Use this for initialization
 	void Start () {
+		playerBlade = transform.FindChild ("PlayerBlade");
 		animator = gameObject.GetComponent<Animator> ();
 		rb2d = gameObject.GetComponent<Rigidbody2D> ();
 	}
 	
 	void Update() {
 
-		if (isAttacking)
+		if (isAttacking) {
 			return;
+		}
 
 		if (Input.GetButtonDown ("Fire1") && grounded) {
 			isAttacking = true;
 			animator.SetBool("IsAttacking", true);
+			playerBlade.gameObject.SetActive(true);
 			return;
 		}
 
@@ -81,4 +86,5 @@ public class MyPlayer : AliveEntity {
 		scale.x *= -1;
 		transform.localScale = scale;
 	}
+	
 }

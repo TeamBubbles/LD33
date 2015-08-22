@@ -15,6 +15,7 @@ public class AttackAnimationScript : StateMachineBehaviour {
 
 	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
 	override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+		animator.gameObject.GetComponent<MyPlayer> ().playerBlade.gameObject.SetActive (false);
 		animator.gameObject.GetComponent<MyPlayer> ().isAttacking = false;
 		animator.SetBool ("IsAttacking", false);
 	}

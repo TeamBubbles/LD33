@@ -8,6 +8,13 @@ public class AliveEntity : MonoBehaviour {
 	public void GetHit()
 	{
 		CurrentHP--;
+		if (CurrentHP <= 0)
+			Die ();
+	}
+
+	public void Die()
+	{
+		Destroy (gameObject);
 	}
 
 	// Update is called once per frame
