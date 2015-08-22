@@ -14,6 +14,9 @@ public class MyPlayer : AliveEntity {
 
 	public Transform groundCheck;
 	public LayerMask whatIsGround;
+
+	public Transform[] leftChecks;
+	public Transform[] rightChecks;
 	
 	public Transform playerBlade;
 #endregion
@@ -21,7 +24,8 @@ public class MyPlayer : AliveEntity {
 #region Private Members
 	bool facingRight = true;
 	bool grounded = false;
-	float groundRadius = 0.2f;
+	float groundRadius = 0.1f;
+	float sideRadius = 0.2f;
 	Rigidbody2D rb2d;
 #endregion
 
@@ -68,11 +72,29 @@ public class MyPlayer : AliveEntity {
 			return;
 
 		float xInput = Input.GetAxis ("Horizontal");
+
+		Transform[] actualLeft = facingRight ? leftChecks : rightChecks;
+		Transform[] actualRight = facingRight ? rightChecks : leftChecks;
+
+		bool sticky = false;
+
+		for (int i = 0; i < actualLeft.Length; i++) {
+			if((xInput < 0 && Physics2D.OverlapCircle(actualLeft[i].position, sideRadius, whatIsGround)) ||
+			   (xInput > 0 && Physics2D.OverlapCircle(actualRight[i].position, sideRadius, whatIsGround)))
+				sticky = true;
+		}
+
+		if(sticky && !grounded)
+		{
+
+			Debug.Log("Spiderman");
+
+			return;
+		}
 		rb2d.velocity = new Vector2 (xInput * maxSpeed, rb2d.velocity.y);
 
-		
 		animator.SetFloat ("xVelocity", Mathf.Abs(rb2d.velocity.x));
-
+		
 		if (xInput > 0 && !facingRight)
 			Flip ();
 		else if (xInput < 0 && facingRight)
