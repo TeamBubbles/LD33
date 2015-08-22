@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Player : MonoBehaviour {
+public class Player : AliveEntity {
 
     public float maxJumpHeight = 4;
     public float minJumpHeight = 1;
@@ -21,14 +21,20 @@ public class Player : MonoBehaviour {
     float gravity;
     float maxJumpVelocity;
     float minJumpVelocity;
-    Vector3 velocity;
+    public Vector3 velocity;
     float velocityXSmoothing;
+
+	bool isAttacking = false;
+	Animator animator;
+
+	bool facingRight = true;
 
     Controller2D controller;
 
     void Start()
     {
         controller = GetComponent<Controller2D>();
+		animator = gameObject.GetComponent<Animator> ();
 
         gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex, 2);
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
@@ -38,11 +44,47 @@ public class Player : MonoBehaviour {
 
     void Update()
     {
+//		if (isAttacking) {
+//			Transform arm = transform.FindChild("player_arm");
+//			arm.RotateAround(armJoint.transform.position, Vector3.forward, Time.deltaTime * armRotationTime);
+//			//arm.Rotate(new Vector3(0f, 0f, Time.deltaTime * armRotationTime));
+//			if(Mathf.Abs(Mathf.DeltaAngle(arm.rotation.eulerAngles.z, 0f)) < 2f)
+//			{
+//				isAttacking = false;
+//				reverseAttack = true;
+//			}
+//		}
+//		else if (reverseAttack)
+//		{
+//			Transform arm = transform.FindChild("player_arm");
+//			arm.RotateAround(armJoint.transform.position, Vector3.forward, Time.deltaTime * (-armRotationTime));
+//			if(Mathf.Abs(Mathf.DeltaAngle(arm.rotation.eulerAngles.z, 325f)) < 2f)
+//			{
+//				reverseAttack = false;
+//			}
+//		}
+
         Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         int wallDirX = (controller.collisions.left) ? -1 : 1;
 
         float targetVelocityX = input.x * moveSpeed;
+
+		if (targetVelocityX < 0f && facingRight) {
+			facingRight = false;
+			transform.Rotate(new Vector3(0f, 180f));
+			Debug.Log ("facing left");
+		} else if (targetVelocityX > 0f && !facingRight) {
+			facingRight = true;
+			transform.Rotate(new Vector3(0f, 180f));
+			Debug.Log("facing right");
+		}
+
+		if(!facingRight)
+			targetVelocityX *= -1;
+
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne);
+		animator.SetFloat ("xVelocity", velocity.x);
+
 
         bool wallSliding = false;
         if ((controller.collisions.left || controller.collisions.right) && !controller.collisions.below && velocity.y < 0)
@@ -107,6 +149,11 @@ public class Player : MonoBehaviour {
                 velocity.y = minJumpVelocity;
             }
         }
+
+		if (Input.GetButton ("Fire1") && !wallSliding) 
+		{
+			isAttacking = true;
+		}
 
 
         velocity.y += gravity * Time.deltaTime;
