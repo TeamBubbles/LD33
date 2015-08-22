@@ -30,6 +30,10 @@ public class CameraFollow : MonoBehaviour
     {
         focusArea.Update(target.collider.bounds);
 
+        // Currently, a quickly-falling player will go offscreen and have difficulty surviving long falls.
+        // This next line changes up the verticalOffset so that falling players look down, rather than up. This certainly needs to be modified before use.
+        //float verticalOffsetModifier = target.collisions.below && target.collisions.velocityOld.y < -0.1f ? verticalOffset : verticalOffset * -2;
+        
         Vector2 focusPosition = focusArea.centre + Vector2.up * verticalOffset;
 
         if (focusArea.velocity.x != 0)
